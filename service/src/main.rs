@@ -3,6 +3,11 @@ pub mod log;
 pub mod new_ops;
 pub mod nonblocking_loop;
 pub mod utils;
+mod read_ops;
+mod node_registry;
+mod settings;
+mod nodes;
+mod constants;
 
 use std::error::Error;
 use std::sync::Arc;
@@ -144,15 +149,15 @@ pub async fn process_request(
       )
       .await
     },
-    ServiceRequestOpcode::ReadRank => {
-      process_read(&*subgraphs_map, &req.subgraph_name, |_aug_graph| {
-        //  TODO
-        // aug_graph.get_rank(&req.ego)
+    ServiceRequestOpcode::ReadScores => {
+      process_read(&*subgraphs_map, &req.subgraph_name, |aug_graph| {
+        let kind_opt = node_kind_from_prefix(kind_str); // Use new function from nodes.rs
+        let scores = aug_graph.read_scores(&req.ego, &req.score_options);
         return Response {
           response: 0,
         };
       })
-    },
+    }
   }
 }
 
